@@ -4,3 +4,4 @@ Option 3: Discard your local changes
 
 ⚠️ This deletes all uncommitted changes.
 new chnage has been added
+i have added the new chnages in this script
