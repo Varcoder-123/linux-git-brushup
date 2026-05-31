@@ -1,0 +1,44 @@
+pipeline {
+    agent any
+    stages {
+        stage('git hub') {
+            steps {
+                echo 'pulling the code'
+                git 'https://github.com/Varcoder-123/Netflix-Pipeline-Project.git'
+            }
+        }
+        stage('Build and package') {
+            steps {
+                echo 'bulding the code'
+                sh 'mvn clean package -T 1C -DskipTests'
+            }
+        }
+        stage('tomcat deployment') {
+            steps{
+                script {
+                echo 'tomcat deployment'
+                sh "sudo cp target/NETFLIX-1.2.2.war /home/Vignesh/devops-project/apache-tomcat-9.0.118/webapps"
+                }
+            } 
+        }
+        stage('download the artifact') {
+            steps{
+                archiveArtifacts artifacts: 'target/NETFLIX-1.2.2.war' , fingerprint: true
+            } 
+        }
+        stage('Upload Artifact to Azure Storage') {
+            steps{
+                withCredentials([string(credentialsId: 'azure-storage-key', variable: 'STORAGE_KEY')]) {
+                sh '''
+                az storage blob upload \
+                --account-name devopsartifactstore01 \
+                --account-key $STORAGE_KEY \
+                --container-name artifacts \
+                --name NETFLIX-1.2.2.war \
+                --file target/NETFLIX-1.2.2.war
+                '''
+               }
+            } 
+        }
+    }
+}
