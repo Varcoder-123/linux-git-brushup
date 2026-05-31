@@ -1,0 +1,6 @@
+git stash saves your current changes temporarily and cleans the working directory so Git can pull.
+
+Option 3: Discard your local changes
+
+⚠️ This deletes all uncommitted changes.
+new chnage has been added
