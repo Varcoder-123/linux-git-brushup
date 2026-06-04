@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+    
+    tools {
+        maven 'maven3'
+        jdk 'jdk17'
+    }
+
+    stages {
+        stage('git checkout') {
+            steps {
+                echo 'git checkout'
+                git branch: 'main', url: 'https://github.com/Varcoder-123/Nexus-Demo.git'
+            }
+        }
+        stage('build') {
+            steps {
+                echo 'git checkout'
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+        stage('tomcat deployment') {
+            steps {
+                script {
+                echo 'tomcat deployment'
+                sh "sudo cp target/database_service_project-0.0.9.jar /home/Vicky/apache-tomcat-9.0.118/webapps"
+                }
+            }
+        }
+        stage('Push the jar to Apache') {
+            steps {
+                script {
+                echo 'Push the jar to Apache'
+                sh "sudo cp target/database_service_project-0.0.9.jar /home/Vicky/apache-tomcat-9.0.118/webapps"
+                }
+            }
+        }
+        stage('Upload the artifacts the nexus') {
+            steps {
+                echo 'Upload the artifacts the nexus'
+                withMaven(globalMavenSettingsConfig: 'settings.xml', jdk: 'jdk17', maven: 'maven3', traceability: true) {
+                    sh 'mvn deploy'
+                }
+            }
+        }
+    }
+}
+
