@@ -1,0 +1,61 @@
+pipeline {
+    agent any
+    
+    tools {
+        maven 'maven3'
+        jdk 'jdk17'
+    }
+
+    environment{
+        SCANNER_HOME = tool 'sonar-scanner'
+        DOCKERHUB_USERNAME = 'vicky1867'
+        DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/vignesh:latest"
+    }
+
+    stages {
+        stage('git checkout') {
+            steps {
+                echo 'git checkout'
+                git branch: 'main', url: 'https://github.com/Varcoder-123/SonarQube-Project-Kastro.git'
+            }
+        }
+        stage('running clean and compile') {
+            steps {
+                echo 'git checkout'
+                sh 'mvn clean compile'
+            }
+        }
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        stage('package') {
+            steps {
+                echo 'git checkout'
+                sh 'mvn package'
+            }
+        }
+        stage('docker image') {
+            steps {
+                script{
+                    echo 'docker build'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                }
+            }
+        }
+        stage('docker container') {
+            steps {
+                script{
+                    sh '''
+                        docker rm -f spotify-app || true
+                        docker run -d --name spotify-app -p 5555:5555 ${DOCKER_IMAGE}
+                    '''
+                }
+            }
+        }
+    }
+}
+
