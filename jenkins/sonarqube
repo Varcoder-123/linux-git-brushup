@@ -7,7 +7,6 @@ pipeline {
     }
 
     environment{
-        SCANNER_HOME = tool 'sonar-scanner'
         DOCKERHUB_USERNAME = 'vicky1867'
         DOCKER_IMAGE = "${DOCKERHUB_USERNAME}/vignesh:latest"
     }
